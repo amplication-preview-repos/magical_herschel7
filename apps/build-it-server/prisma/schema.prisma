@@ -1,0 +1,57 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model CarModel {
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  modelUrl  String?
+  name      String?
+  parts     Part[]
+  updatedAt DateTime @updatedAt
+}
+
+model Part {
+  carModel      CarModel?          @relation(fields: [carModelId], references: [id])
+  carModelId    String?
+  createdAt     DateTime           @default(now())
+  id            String             @id @default(cuid())
+  modifications Modification[]
+  name          String?
+  typeField     EnumPartTypeField?
+  updatedAt     DateTime           @updatedAt
+}
+
+model Modification {
+  createdAt    DateTime  @default(now())
+  dateModified DateTime?
+  description  String?
+  id           String    @id @default(cuid())
+  part         Part?     @relation(fields: [partId], references: [id])
+  partId       String?
+  updatedAt    DateTime  @updatedAt
+  user         User?     @relation(fields: [userId], references: [id])
+  userId       String?
+}
+
+model User {
+  createdAt     DateTime       @default(now())
+  email         String?        @unique
+  firstName     String?
+  id            String         @id @default(cuid())
+  lastName      String?
+  modifications Modification[]
+  password      String
+  roles         Json
+  updatedAt     DateTime       @updatedAt
+  username      String         @unique
+}
+
+enum EnumPartTypeField {
+  Option1
+}
